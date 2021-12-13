@@ -3,7 +3,7 @@ close all
 X=[1:.05:50]';
 Y=X;
 L=length(X);
-    i=1
+    i
     yi=Y+i*2*rand(L,1);
     YY(:,i)=yi;
 [NDAResuult,SettingStr]=NDA(X,yi,'plotStatus','off','NumRandomise',50,'DispString',...
