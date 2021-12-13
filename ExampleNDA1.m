@@ -2,9 +2,6 @@ clear all
 close all
 X=[1:.05:50]';
 Y=X;
-% Y=X;
-% plot(X,Y)
-% close all
 L=length(X);
     i=1
     yi=Y+i*2*rand(L,1);
