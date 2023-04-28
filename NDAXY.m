@@ -141,7 +141,7 @@ for v=1:L_Vars
         Sold=PrintInOneLine(Sold,Snew);
         [Xir,Yir]=RandomizeXY(Xi,Yi);%data may be sorted in genuse like hospital it can moved befor For i=1 loop
         [SamplePdfMatched]=VarPDF(Xir);% Matched has good results
-        [AST_smi]=PredicPower9(SamplePdfMatched,Yir,'CutStatus',CutStatusString,CutStatusValue,'FunctionalizingMethod',FunctionalizingString,'ForceSameSize','off');%ForceSameSize MUST nenecessarily off
+        [AST_smi]=AST(SamplePdfMatched,Yir,'CutStatus',CutStatusString,CutStatusValue,'FunctionalizingMethod',FunctionalizingString,'ForceSameSize','off');%ForceSameSize MUST nenecessarily off
         AST_smiT(i)=AST_smi;
     end
   AST_sm(v)=mean(AST_smiT);
