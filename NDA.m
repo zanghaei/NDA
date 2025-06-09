@@ -1,8 +1,8 @@
 function [MatrixNDA,SettingStr]=NDA(varargin)
 % This function Calculates Nonlinear Dependency of Y versus X
-% This function uses NDAMatrix and NDAXY functions
+% This script containes NDAMatrix and NDAXY functions
 
-% X and Y are Column wise matrixes:
+% X and Y are Columnwise matrixes:
 % X is the feature matrix
 % Y is the target matrix
 %columns of X and Y are features
@@ -27,7 +27,7 @@ function [MatrixNDA,SettingStr]=NDA(varargin)
 % CutStatus shows the cutting statuse of Tringles Matrix. Default 'CutStatus','off',0
 % it has values 'off' 'fixed' 'histogram' 'percent'
 % the next argument must be the value in case of : fixed histogram percent
-
+%FunctionalizingMethod
 % Example 1:
 % [NACA,SettingStr]=NDA([X,Y],'plotStatus','off','NumRandomise',3,'DispString',...
 %     'Please Waite ','ForceSameSize','on','VarNames',VarNames,'NTry',1,'CutStatus','off',0,'FunctionalizingMethod','variable','Type',TypeValue);
@@ -43,21 +43,29 @@ function [MatrixNDA,SettingStr]=NDA(varargin)
 
 tic
 NTry=1;
-plotStatus=0;
+plotStatus='off';
 NumRandomise=10;
 DispString='';
-ForceSameSize=0;
+ForceSameSize='off';
 CutStatus=0;
 CutStatusString='default';
 CutStatusValue=NaN;
 VarNames={};
 FunctionalizingString='fix';
+TypeValue=NaN;
 i=1;
 k=1;
 SettingStr={};
 flagXYOneMatrix=0;
 while i<=nargin
     if i==1
+        if nargin==1
+            MatIn=varargin{1};
+            X=MatIn(:,1:end-1);
+            Y=MatIn(:,end);
+            flagXYOneMatrix=1;
+            break
+        end
         if isnumeric(varargin{2})==0
             %error('Argument 1 Must Be a Matrix');
         end
@@ -115,10 +123,17 @@ while i<=nargin
     end
     if strcmp(varargin{i},'CutStatus')
         CutStatusString=varargin{i+1};
-        CutStatusValue=varargin{i+2};
+        if strcmp(CutStatusString,'on')
+            CutStatusValue=varargin{i+2};
+        end
         SettingStr{k,1}='CutStatus';
         SettingStr{k,2}=varargin{i+1};
-        SettingStr{k,3}=varargin{i+2};
+                if strcmp(CutStatusString,'on')
+            SettingStr{k,3}=varargin{i+2};
+                else
+                    SettingStr{k,3}=0;
+        end
+        
         k=k+1;
     end
     
@@ -133,8 +148,8 @@ while i<=nargin
     end
     if strcmp(varargin{i},'Type')
         TypeValue=varargin{i+1};
-        SettingStr{k,1}='Type';
-        SettingStr{k,2}='if FunctionalizingMethod==fromfile Type effects';
+        SettingStr{k,1}='Type';%'if FunctionalizingMethod==fromType Type effects'
+        SettingStr{k,2}='if FunctionalizingMethod==fromType Type effects';
         SettingStr{k,2}=TypeValue;
         k=k+1;
     end
@@ -184,10 +199,11 @@ ForceSameSize=0;
 ForceSameSizeFlag=0;
 CutStatus=0;
 CutStatusString='default';
+plotStatusString='off';
 CutStatusValue=NaN;
 VarNames={};
 FunctionalizingString='';
-FunctionalizingFromFile=0;
+FunctionalizingfromType=0;
 TypeValue=NaN;
 i=1;
 while i<=nargin
@@ -215,8 +231,10 @@ while i<=nargin
     if strcmp(varargin{i},'plotStatus')
         if strcmp(varargin{i+1},'off')
             plotStatus=0;
+            plotStatusString='off';
         elseif strcmp(varargin{i+1},'on')
             plotStatus=1;
+             plotStatusString='on';
         else
             error('plotStatus Must be on, off');
         end
@@ -265,8 +283,8 @@ while i<=nargin
     
     if strcmp(varargin{i},'FunctionalizingMethod')
         FunctionalizingString=varargin{i+1};
-        if strcmp(FunctionalizingString,'fromfile')
-            FunctionalizingFromFile=1;
+        if strcmp(FunctionalizingString,'fromType')
+            FunctionalizingfromType=1;
         end
     end
     if strcmp(varargin{i},'Type')
@@ -279,8 +297,8 @@ if isempty(VarNames)
         VarNames{i}=num2str(i);
     end
 end
-if FunctionalizingFromFile==1 && sum(isnan(TypeValue))==1
-    error('With FunctionalizingFromFile value of Type must not be empty');
+if FunctionalizingfromType==1 && sum(isnan(TypeValue))==1
+    error('With FunctionalizingfromType value of Type must not be empty');
 end
 
 flagPlot=0;
@@ -300,7 +318,7 @@ for v=1:L_Vars
     if ForceSameSizeFlag==1
         [Xi,Yi]=MakeTwoClassesSameSizeNew(Xi,Yi);% random is same as input
     end
-    if FunctionalizingFromFile==1
+    if FunctionalizingfromType==1
         if TypeValue(v)==1%nominal
             FunctionalizingString='fix';
         
@@ -315,29 +333,39 @@ for v=1:L_Vars
     end
     AST_smiT=0;
     for i=1:NRandom
-        Snew=sprintf([DispString, ' Variable Stage * ', num2str(v)  ,' of ',num2str(L_Vars),' ', ' Rands ',num2str(i),' Of ',num2str(NRandom)]);
-        Sold=PrintInOneLine(Sold,Snew);
         [Xir,Yir]=RandomizeXY(Xi,Yi);%data may be sorted in genuse like hospital it can moved befor For i=1 loop
-        [SamplePdfMatched]=VarPDF(Xir);% Matched has good results
-        [AST_smi]=AST(SamplePdfMatched,Yir,'CutStatus',CutStatusString,CutStatusValue,'FunctionalizingMethod',FunctionalizingString,'ForceSameSize','off');%ForceSameSize MUST nenecessarily off
+          [SamplePdfMatched]=VarPDF(Xir);% Matched has good results
+%         if TypeValue(v)==1%nominal % This Condition CAN REMOVED
+%             SamplePdfMatched=uniformPdf(Xir);
+%         else %if ordinal or scale
+%             [SamplePdfMatched]=VarPDF(Xir);% Matched has good results
+%         end
+
+        Snew=sprintf([DispString, ' Variable Stage * ', num2str(v)  ,' of ',num2str(L_Vars),' ', ' Rands ',num2str(i),' Of ',num2str(NRandom),' Lentgth=', num2str(length(Yir))]);
+        Sold=PrintInOneLine(Sold,Snew);
+        [AST_smi]=AST(SamplePdfMatched,Yir,'CutStatus',CutStatusString,CutStatusValue,'FunctionalizingMethod',FunctionalizingString,'ForceSameSize','off','plotStatus',plotStatusString);%ForceSameSize MUST nenecessarily off
+        %[AST_smi]=AST2(SamplePdfMatched,Yir,CutStatusString,CutStatusValue,FunctionalizingString,'off',plotStatusString);%ForceSameSize MUST nenecessarily off
         AST_smiT(i)=AST_smi;
     end
-  AST_sm(v)=mean(AST_smiT);
+  %AST_sm(v)=mean(AST_smiT);
     AST_Vari=mean(AST_smiT);
     
     PowVar_v=0;
     for i=1:N
-        Snew=sprintf([DispString, ' Variable Stage - ', num2str(v)  ,' of ',num2str(L_Vars),' ', ' Rands ',num2str(i),' Of ',num2str(N)]);
-        Sold=PrintInOneLine(Sold,Snew);        
         [Xr,Yr]=RandomizeXY(Xi,Yi);        
         %[Xi,Yi]=RemoveNaN(Xr,Yr);
-        [ASTi]=AST(Xr,Yr,'CutStatus',CutStatusString,CutStatusValue,'FunctionalizingMethod',FunctionalizingString,'ForceSameSize',ForceSameSize);
+        Snew=sprintf([DispString, ' Variable Stage - ', num2str(v)  ,' of ',num2str(L_Vars),' ', ' Rands ',num2str(i),' Of ',num2str(N),' Lentgth=', num2str(length(Yr))]);
+        Sold=PrintInOneLine(Sold,Snew);
+        
+        [ASTi]=AST(Xr,Yr,'CutStatus',CutStatusString,CutStatusValue,'FunctionalizingMethod',FunctionalizingString,'ForceSameSize',ForceSameSize,'plotStatus',plotStatusString);
+        %[ASTi]=AST2(Xr,Yr,CutStatusString,CutStatusValue,FunctionalizingString,'off',plotStatusString);%ForceSameSize MUST nenecessarily off
         %PowVar(i,1)=SelecPositives(1-AST/AST_sm);%Very Important. 1-NCA/NCA_sm is important
         %PowVar_v(i)=(1-AST/AST_Vari);%Very Important. 1-NCA/NCA_sm is important
         ASTm(i)=ASTi;
     end
     %NCAXY(v,1)=mean(PowVar_v);
     NDA(v,1)=1-mean(ASTm)/AST_Vari;
+    %NDA(v,1)=1-mean(ASTm);
 end
 
 if plotStatus==1

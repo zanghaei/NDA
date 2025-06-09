@@ -1,4 +1,6 @@
-function [ASTResult]=AST(varargin)
+function       [ASTResult]=AST(X,Y,CutStatusString,CutStatusValue,FunctionalizingMethod,ForceSameSize,plotStatus);%ForceSameSize MUST nenecessarily off
+AST is better
+%function [ASTResult]=AST(varargin)
 %Please Use AST function
 %990121 FunctionalizingFlag is added
 %990116 StepSize Optimum
@@ -14,93 +16,93 @@ function [ASTResult]=AST(varargin)
 % L_Cut_percent=.01;
 % CutPercent=.0001;
 % L_Cut=2;% in future use this parameter
-plotStatus=0;
-CutStatus=0;%0 no cutting(defualt) 1:fixed 2:histogram  3:pecent 4:defualt=off
+% plotStatus=0;
+% CutStatus=0;%0 no cutting(defualt) 1:fixed 2:histogram  3:pecent 4:defualt=off
 L_Cut_percent=.01;
-L_Cut_histogram=.0001;
+% L_Cut_histogram=.0001;
 L_Cut_fixed=3;
-VarNames{1}='Variable';
-FunctionalizingMethod='fix';
+% VarNames{1}='Variable';
+% FunctionalizingMethod='fix';
 FunctionalizingFlag=0;
-i=1;
-while i<=nargin
-    if i==1
-        if isnumeric(varargin{2})==0
-            error('Argument 1 Must Be a Matrix');
-        end
-        if isnumeric(varargin{2})
-            X=varargin{1};
-            Y=varargin{2};
-        else
-            MatIn=varargin{1};
-            X=MatIn(:,1);
-            Y=MatIn(:,end);
-        end
-    end
+% i=1;
+%         [AST_smi]=AST(X,Y,CutStatusString,CutStatusValue,CutStatusString,CutStatusValue,FunctionalizingMethod,ForceSameSize,plotStatus);%ForceSameSize MUST nenecessarily off
+
+% while i<=nargin
+%     if i==1
+%         if isnumeric(varargin{2})==0
+%             error('Argument 1 Must Be a Matrix');
+%         end
+%         if isnumeric(varargin{2})
+%             X=varargin{1};
+%             Y=varargin{2};
+%         else
+%             MatIn=varargin{1};
+%             X=MatIn(:,1);
+%             Y=MatIn(:,end);
+%         end
+%     end
     
-    if strcmp(varargin{i},'plotStatus')
-        if strcmp(varargin{i+1},'off')
+%     if strcmp(varargin{i},'plotStatus')
+        if strcmp(plotStatus,'off')
             plotStatus=0;
-        elseif strcmp(varargin{i+1},'on')
+        elseif strcmp(plotStatus,'on')
             plotStatus=1;
         else
             error('plotStatus Must be on, off');
         end
-    end
+%     end
     
     
-      if strcmp(varargin{i},'ForceSameSize')
-        if strcmp(varargin{i+1},'off')
+%       if strcmp(varargin{i},'ForceSameSize')
+        if strcmp(ForceSameSize,'off')
             ForceSameSizeStatus=0;
-        elseif strcmp(varargin{i+1},'on')
+        elseif strcmp(ForceSameSize,'on')
            ForceSameSizeStatus=1;
         else
             error('ForceSameSizetatus Must be on, off');
         end
-      end
+%       end
     
-      if strcmp(varargin{i},'FunctionalizingMethod')
-        if strcmp(varargin{i+1},'fix')
+%       if strcmp(varargin{i},'FunctionalizingMethod')
+        if strcmp(FunctionalizingMethod,'fix')
             FunctionalizingFlag=0;
-        elseif strcmp(varargin{i+1},'variable')
+        elseif strcmp(FunctionalizingMethod,'variable')
            FunctionalizingFlag=1;
         else
             error('FunctionalizingMethod Must be fix, variable');
         end
-      end
+%       end
       
-    if strcmp(varargin{i},'CutStatus')
-        if strcmp(varargin{i+1},'off')
+        if strcmp(CutStatusString,'off')
             CutStatus=0;%L cut in this case is zero         
-        elseif strcmp(varargin{i+1},'fixed')
+        elseif strcmp(CutStatusString,'fixed')
             CutStatus=1;
-            L_Cut_fixed=varargin{i+2};
-        elseif strcmp(varargin{i+1},'histogram')
+            L_Cut_fixed=CutStatusValue;
+        elseif strcmp(CutStatusString,'histogram')
             CutStatus=2;
-            L_Cut_histogram=varargin{i+2};
-        elseif strcmp(varargin{i+1},'percent')
+            L_Cut_histogram=CutStatusValue;
+        elseif strcmp(CutStatusString,'percent')
             CutStatus=3;
-            L_Cut_percent=varargin{i+2};
-        elseif strcmp(varargin{i+1},'default')
+            L_Cut_percent=CutStatusValue;
+        elseif strcmp(CutStatusString,'default')
             CutStatus=0;
         else
             error('CutStatus Must be: off, fixed, histogram, percent defualt');
         end
-    end
     
-    if strcmp(varargin{i},'VarNames')
-        if iscell(varargin{i+1})
-            VarNames=varargin{i+1};
-        elseif strcmp(varargin{i+1},'default')
-%             for j=1:size(X,2)
-                VarNames{1}='Variable Versuse Samples';
-%             end
-        else
-            error('VarNames must be cell like {''Heigth''} or default');
-        end
-    end
-    i=i+1;
-end
+%     if strcmp(varargin{i},'VarNames')
+%         if iscell(varargin{i+1})
+%             VarNames=varargin{i+1};
+%         elseif strcmp(varargin{i+1},'default')
+% %             for j=1:size(X,2)
+%                 VarNames{1}='Variable Versuse Samples';
+% %             end
+%         else
+%             error('VarNames must be cell like {''Heigth''} or default');
+%         end
+%     end
+%     i=i+1;
+% end
 % if isempty(VarNames)
 %     for j=1:size(X,2)
 %         VarNames{i}=num2str(i);
@@ -132,7 +134,7 @@ Y=XY(:,2);
 if plotStatus==1
     figure;
     plot(X,Y,'*');
-    title(VarNames);
+    title('Variable Versuse Samples or default');
 end
 
 k=1;
@@ -161,13 +163,11 @@ if plotStatus==0
     for i=2:size(AllPoints,1)-1
         xp=AllPoints(i-1:i+1,1);
         yp=AllPoints(i-1:i+1,2);
-        %if  IsTraingle(xp,yp)==0%sum(abs(diff(yp)))==0
-         %   A(i-1) =0;
-        %else
-            %A(i-1) = polyarea(xp,yp);
-            %A(i-1)=05*det([xp,yp,[1;1;1]]);
-            A(i-1)=0.5*abs(xp(1)*(yp(2)-yp(3))+xp(2)*(yp(3)-yp(1)) + xp(3)*(yp(1)-yp(2)));
-        %end
+        if  IsTraingle(xp,yp)==0%sum(abs(diff(yp)))==0
+            A(i-1) =0;
+        else
+            A(i-1) = polyarea(xp,yp);
+        end
     end
     
 end
@@ -232,4 +232,3 @@ if CutStatus==1
 end
 ASTResult=S;%AST
 end
-

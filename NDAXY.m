@@ -1,4 +1,5 @@
 function [NDA]=NDAXY(varargin)
+Just use NDA File
 plotStatus=0;
 NumRandomise=10;
 DispString='';
@@ -33,7 +34,7 @@ while i<=nargin
             error('NumRandomise Must be Positive Enteger');
         end
     end
-    
+   
     if strcmp(varargin{i},'plotStatus')
         if strcmp(varargin{i+1},'off')
             plotStatus=0;
@@ -140,8 +141,13 @@ for v=1:L_Vars
         Snew=sprintf([DispString, ' Variable Stage * ', num2str(v)  ,' of ',num2str(L_Vars),' ', ' Rands ',num2str(i),' Of ',num2str(NRandom)]);
         Sold=PrintInOneLine(Sold,Snew);
         [Xir,Yir]=RandomizeXY(Xi,Yi);%data may be sorted in genuse like hospital it can moved befor For i=1 loop
-        [SamplePdfMatched]=VarPDF(Xir);% Matched has good results
-        [AST_smi]=AST(SamplePdfMatched,Yir,'CutStatus',CutStatusString,CutStatusValue,'FunctionalizingMethod',FunctionalizingString,'ForceSameSize','off');%ForceSameSize MUST nenecessarily off
+        if TypeValue(v)==1%nominal
+            SamplePdfMatched=uniformPdf(Xir);
+        else %if ordinal or scale
+            [SamplePdfMatched]=VarPDF(Xir);% Matched has good results
+        end        
+        %[AST_smi]=PredicPower9(SamplePdfMatched,Yir,'CutStatus',CutStatusString,CutStatusValue,'FunctionalizingMethod',FunctionalizingString,'ForceSameSize','off');%ForceSameSize MUST necessarily off
+        [AST_smi]=AST(SamplePdfMatched,Yir,'CutStatus',CutStatusString,CutStatusValue,'FunctionalizingMethod',FunctionalizingString,'ForceSameSize','off');%ForceSameSize MUST necessarily off
         AST_smiT(i)=AST_smi;
     end
   AST_sm(v)=mean(AST_smiT);

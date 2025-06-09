@@ -1,25 +1,25 @@
-function [B,yout]=FunctionalizeFix(A,y)
+function [B,Yout]=FunctionalizeFix(X,Y)
 %990116 StepSize Total
 %Please Replace A by X and y By Y and B by Xout and yout by Yout in future
 %versions 14021119
-Ay=[reshape(A,length(A),1),reshape(y,length(A),1)];
-Ays = sortrows(Ay,1,'ascend');
-yout=Ays(:,2);
-As=Ays(:,1);
+XY=[reshape(X,length(X),1),reshape(Y,length(X),1)];
+XYs = sortrows(XY,1,'ascend');
+Yout=XYs(:,2);
+%As=XYs(:,1);
 % DAs=diff(As);
 % %figure;plot(DAs,'*')
 % L=length(DAs);
 % B(1)=As(1);
 % i=1;
 % j=0;
-MaxA=max(A);
-MinA=min(A);
-StepSize=(MaxA-MinA)/length(Ay);
+MaxA=max(X);
+MinA=min(X);
+StepSize=(MaxA-MinA)/length(XY);
 % for i=1:length(Ay)
 %     B(i)=(i-1)*StepSize+MinA;
 % end
-B=([1:length(Ay)]-1)*StepSize+MinA;
-B=reshape(B,length(A),1);
+B=([1:length(XY)]-1)*StepSize+MinA;
+B=reshape(B,length(X),1);
 
 % while i<L+1
 %     
